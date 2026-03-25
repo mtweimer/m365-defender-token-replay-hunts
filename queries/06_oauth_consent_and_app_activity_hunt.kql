@@ -1,0 +1,6 @@
+// Hunt for suspicious OAuth / consent activity
+CloudAppEvents
+| where Timestamp >= ago(30d)
+| where RawEventData has_any ("Consent", "OAuth", "AppRoleAssignment", "Add service principal", "Grant consent")
+| project Timestamp, AccountDisplayName, ActionType, Application, IPAddress, RawEventData
+| order by Timestamp desc

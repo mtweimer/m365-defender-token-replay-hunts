@@ -1,0 +1,12 @@
+// Correlate suspicious URLs with delivered messages
+let suspiciousMail = EmailUrlInfo
+| where Url has_any (
+    "workers.dev", "vercel.app", "amplifyapp.com", "customervoice.microsoft.com",
+    "secure-web.cisco.com", "mimecastprotect.com", "trendmicro.com"
+)
+| project NetworkMessageId, Url, UrlDomain, RecipientEmailAddress;
+EmailEvents
+| join kind=inner suspiciousMail on NetworkMessageId
+| project Timestamp, RecipientEmailAddress, SenderFromAddress, Subject, Url, UrlDomain,
+          DeliveryAction, LatestDeliveryAction, ThreatTypes, DetectionMethods
+| order by Timestamp desc

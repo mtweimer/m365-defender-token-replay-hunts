@@ -1,0 +1,9 @@
+// Hunt for user clicks to lure infrastructure and redirectors called out in reporting
+UrlClickEvents
+| where Timestamp >= ago(30d)
+| where Url has_any (
+    "workers.dev", "vercel.app", "amplifyapp.com", "customervoice.microsoft.com",
+    "secure-web.cisco.com", "mimecastprotect.com", "trendmicro.com"
+)
+| project Timestamp, AccountUpn, ActionType, Url, UrlChain, Workload, NetworkMessageId
+| order by Timestamp desc

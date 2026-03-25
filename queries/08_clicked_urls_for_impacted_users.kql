@@ -1,0 +1,10 @@
+// Replace placeholders with impacted users
+let users = dynamic(["<user1@domain.com>", "<user2@domain.com>"]);
+UrlClickEvents
+| where AccountUpn in (users)
+| where Url has_any (
+    "workers.dev", "vercel.app", "amplifyapp.com", "customervoice.microsoft.com",
+    "secure-web.cisco.com", "mimecastprotect.com", "trendmicro.com"
+)
+| project Timestamp, AccountUpn, ActionType, Url, UrlChain, Workload, NetworkMessageId
+| order by Timestamp desc

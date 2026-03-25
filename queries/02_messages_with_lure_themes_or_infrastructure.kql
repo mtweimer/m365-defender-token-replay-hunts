@@ -1,0 +1,8 @@
+// Hunt for delivered mail with relevant lure themes or infrastructure
+EmailEvents
+| where Timestamp >= ago(30d)
+| where Subject has_any ("DocuSign", "DocSend", "voicemail", "proposal", "bid", "RFP", "secure document", "SharePoint")
+   or SenderFromAddress has_any ("docusign", "sharepoint", "voicemail")
+| project Timestamp, NetworkMessageId, Subject, SenderFromAddress, RecipientEmailAddress,
+          ThreatTypes, DetectionMethods, DeliveryAction, LatestDeliveryAction
+| order by Timestamp desc

@@ -1,0 +1,7 @@
+// Hunt for mailbox tampering and rule creation
+CloudAppEvents
+| where Timestamp >= ago(30d)
+| where ActionType has_any ("New-InboxRule", "Set-InboxRule", "Disable-InboxRule", "UpdateInboxRules")
+   or RawEventData has_any ("New-InboxRule", "Set-InboxRule", "forward", "redirect")
+| project Timestamp, AccountDisplayName, Application, ActionType, IPAddress, RawEventData
+| order by Timestamp desc
