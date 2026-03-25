@@ -1,0 +1,12 @@
+// Successful identity logons from IPs not seen for the same account in the prior 30 days.
+// Useful for spotting unusual access without requiring geolocation enrichment.
+let baseline = IdentityLogonEvents
+| where Timestamp between (ago(37d) .. ago(7d))
+| where ActionType == "LogonSuccess"
+| summarize by AccountUpn, IPAddress;
+IdentityLogonEvents
+| where Timestamp > ago(7d)
+| where ActionType == "LogonSuccess"
+| join kind=leftanti baseline on AccountUpn, IPAddress
+| summarize FirstSeen=min(Timestamp), LastSeen=max(Timestamp), LogonCount=count() by AccountUpn, IPAddress, Location, ISP
+| order by LastSeen desc

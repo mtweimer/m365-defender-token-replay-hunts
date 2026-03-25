@@ -1,0 +1,8 @@
+// Rundll32 making external network connections is often worth a look.
+// Tune by excluding known management or vendor DLL launch patterns.
+DeviceNetworkEvents
+| where Timestamp > ago(14d)
+| where InitiatingProcessFileName =~ "rundll32.exe"
+| where RemoteIPType == "Public"
+| summarize FirstSeen=min(Timestamp), LastSeen=max(Timestamp), ConnectionCount=count() by DeviceName, InitiatingProcessAccountName, InitiatingProcessCommandLine, RemoteIP, RemoteUrl
+| order by ConnectionCount desc, LastSeen desc

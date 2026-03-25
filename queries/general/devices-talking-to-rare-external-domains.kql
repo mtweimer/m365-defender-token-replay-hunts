@@ -1,0 +1,14 @@
+// Rare-domain outbound activity can surface staging, phishing click-through, or malware C2.
+// Exclude CDNs, security vendors, and your own known-good SaaS domains.
+let known = DeviceNetworkEvents
+| where Timestamp between (ago(30d) .. ago(7d))
+| where RemoteIPType == "Public"
+| where isnotempty(RemoteUrl)
+| summarize by RemoteUrl;
+DeviceNetworkEvents
+| where Timestamp > ago(7d)
+| where RemoteIPType == "Public"
+| where isnotempty(RemoteUrl)
+| join kind=leftanti known on RemoteUrl
+| summarize FirstSeen=min(Timestamp), LastSeen=max(Timestamp), Devices=dcount(DeviceId), Connections=count() by RemoteUrl
+| order by Devices asc, Connections desc, LastSeen desc

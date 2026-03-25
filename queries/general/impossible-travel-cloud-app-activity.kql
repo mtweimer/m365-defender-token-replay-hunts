@@ -1,0 +1,16 @@
+// Starter impossible-travel style cloud activity hunt.
+// Requires location data in CloudAppEvents; adjust the time window to reduce noise.
+let window_minutes = 60;
+CloudAppEvents
+| where Timestamp > ago(7d)
+| where isnotempty(AccountObjectId)
+| where isnotempty(CountryCode)
+| project Timestamp, AccountObjectId, AccountDisplayName, IPAddress, CountryCode, ActionType, Application
+| order by AccountObjectId asc, Timestamp asc
+| serialize
+| extend PrevTimestamp = prev(Timestamp), PrevCountry = prev(CountryCode), PrevAccount = prev(AccountObjectId)
+| where AccountObjectId == PrevAccount
+| where CountryCode != PrevCountry
+| where datetime_diff("minute", Timestamp, PrevTimestamp) between (0 .. window_minutes)
+| project Timestamp, AccountDisplayName, AccountObjectId, IPAddress, CountryCode, PrevTimestamp, PrevCountry, ActionType, Application
+| order by Timestamp desc

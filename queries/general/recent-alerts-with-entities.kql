@@ -1,0 +1,6 @@
+// Quick triage helper: recent alerts joined to evidence/entities.
+AlertInfo
+| where Timestamp > ago(7d)
+| join kind=inner AlertEvidence on AlertId
+| project Timestamp, AlertId, Title, Severity, Category, ServiceSource, EntityType, EvidenceRole, DeviceName, AccountName, RemoteIP, FileName, SHA1
+| order by Timestamp desc

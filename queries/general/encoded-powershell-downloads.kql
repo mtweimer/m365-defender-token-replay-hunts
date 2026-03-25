@@ -1,0 +1,8 @@
+// Looks for PowerShell with encoded commands or common download cradles.
+// Tune by excluding admin tooling and automation hosts.
+DeviceProcessEvents
+| where Timestamp > ago(14d)
+| where FileName in~ ("powershell.exe", "pwsh.exe")
+| where ProcessCommandLine has_any ("-enc", "FromBase64String", "DownloadString", "DownloadFile", "IEX(", "Invoke-Expression")
+| project Timestamp, DeviceName, AccountName, FileName, ProcessCommandLine, InitiatingProcessFileName, InitiatingProcessCommandLine
+| order by Timestamp desc
