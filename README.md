@@ -1,6 +1,6 @@
 # Microsoft Defender XDR Token Replay Hunting Queries
 
-Tiny, client-friendly repo with Microsoft Defender XDR Advanced Hunting queries for the Huntress-reported Railway / M365 token replay and device code phishing campaign, plus a small set of practical follow-on hunts for broader scoping.
+Microsoft Defender XDR Advanced Hunting queries for the Huntress-reported Railway / M365 token replay and device code phishing campaign, plus a small set of practical follow-on hunts for broader scoping.
 
 Source reporting:
 - https://www.huntress.com/blog/railway-paas-m365-token-replay-campaign
