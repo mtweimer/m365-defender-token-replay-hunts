@@ -1,4 +1,6 @@
-// Replace placeholders with impacted users.
+// Primary telemetry: Defender for Cloud Apps / Microsoft Defender XDR `CloudAppEvents`.
+// Behavior: Hunts Exchange and mailbox-related cloud activity for impacted users after the lure/click phase.
+// Missing telemetry: Returns empty results instead of a semantic error.
 let users = dynamic(["<user1@domain.com>", "<user2@domain.com>"]);
 let cloudAppEvents = union isfuzzy=true
 (

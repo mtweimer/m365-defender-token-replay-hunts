@@ -1,4 +1,6 @@
-// Hunt for mailbox tampering and rule creation.
+// Primary telemetry: Defender for Cloud Apps / Microsoft Defender XDR `CloudAppEvents`.
+// Behavior: Hunts inbox rule changes, forwarding, and redirect activity associated with mailbox tampering.
+// Missing telemetry: Returns empty results instead of a semantic error.
 let cloudAppEvents = union isfuzzy=true
 (
     CloudAppEvents

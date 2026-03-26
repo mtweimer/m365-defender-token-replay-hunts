@@ -1,5 +1,6 @@
-// Looks for PowerShell with encoded commands or common download cradles.
-// Tune by excluding admin tooling and automation hosts.
+// Primary telemetry: Defender for Endpoint `DeviceProcessEvents`.
+// Behavior: Hunts PowerShell executions with encoded commands or common download cradles.
+// Missing telemetry: Returns empty results instead of a semantic error.
 let processEvents = union isfuzzy=true
 (
     DeviceProcessEvents

@@ -1,5 +1,6 @@
-// Successful identity logons from IPs not seen for the same account in the prior 30 days.
-// Useful for spotting unusual access without requiring geolocation enrichment.
+// Primary telemetry: Identity-related Advanced Hunting telemetry (`IdentityLogonEvents`).
+// Behavior: Finds successful logons from IPs not seen for the same account in the prior baseline period.
+// Missing telemetry: Returns empty results instead of a semantic error.
 let logonEvents = union isfuzzy=true
 (
     IdentityLogonEvents

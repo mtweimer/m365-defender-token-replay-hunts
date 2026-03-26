@@ -1,4 +1,6 @@
-// Hunt for suspicious OAuth / consent activity.
+// Primary telemetry: Defender for Cloud Apps / Microsoft Defender XDR `CloudAppEvents`.
+// Behavior: Hunts suspicious consent grants, OAuth activity, and service principal changes.
+// Missing telemetry: Returns empty results instead of a semantic error.
 let cloudAppEvents = union isfuzzy=true
 (
     CloudAppEvents

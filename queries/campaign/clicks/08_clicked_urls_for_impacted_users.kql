@@ -1,5 +1,6 @@
-// Replace placeholders with impacted users.
-// Prefer Safe Links click telemetry when available; otherwise fall back to browser-initiated endpoint network events.
+// Primary telemetry: Defender for Office 365 Safe Links (`UrlClickEvents`) with Defender for Endpoint browser fallback (`DeviceNetworkEvents`).
+// Behavior: Hunts reported lure-domain clicks or browser visits for a supplied impacted-user list.
+// Missing telemetry: Returns empty results instead of a semantic error.
 let users = dynamic(["<user1@domain.com>", "<user2@domain.com>"]);
 let lureDomains = dynamic([
     "workers.dev", "vercel.app", "amplifyapp.com", "customervoice.microsoft.com",

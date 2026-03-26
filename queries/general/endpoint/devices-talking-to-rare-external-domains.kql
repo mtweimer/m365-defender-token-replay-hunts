@@ -1,5 +1,6 @@
-// Rare-domain outbound activity can surface staging, phishing click-through, or malware C2.
-// Exclude CDNs, security vendors, and your own known-good SaaS domains.
+// Primary telemetry: Defender for Endpoint `DeviceNetworkEvents`.
+// Behavior: Surfaces recent outbound domains not seen in the prior baseline window.
+// Missing telemetry: Returns empty results instead of a semantic error.
 let networkEvents = union isfuzzy=true
 (
     DeviceNetworkEvents

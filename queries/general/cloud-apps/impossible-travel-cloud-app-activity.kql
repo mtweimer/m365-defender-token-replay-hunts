@@ -1,5 +1,6 @@
-// Starter impossible-travel style cloud activity hunt.
-// Requires location data in CloudAppEvents; adjust the time window to reduce noise.
+// Primary telemetry: Defender for Cloud Apps / Microsoft Defender XDR `CloudAppEvents`.
+// Behavior: Flags country changes for the same account inside a short time window.
+// Missing telemetry: Returns empty results instead of a semantic error.
 let window_minutes = 60;
 let cloudAppEvents = union isfuzzy=true
 (

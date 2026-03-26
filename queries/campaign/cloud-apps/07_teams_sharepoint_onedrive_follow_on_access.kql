@@ -1,4 +1,7 @@
-// Replace placeholders with impacted users.
+// Primary telemetry: Defender for Cloud Apps / Microsoft Defender XDR `CloudAppEvents`.
+// Behavior: Hunts follow-on Teams, SharePoint, OneDrive, Exchange Online, and Graph activity for impacted users.
+// Missing telemetry: Returns empty results instead of a semantic error.
+let users = dynamic(["<user1@domain.com>", "<user2@domain.com>"]);
 let cloudAppEvents = union isfuzzy=true
 (
     CloudAppEvents
@@ -18,6 +21,6 @@ let cloudAppEvents = union isfuzzy=true
 cloudAppEvents
 | where Timestamp >= ago(30d)
 | where Application has_any ("Microsoft Teams", "SharePoint", "OneDrive", "Exchange Online", "Microsoft Graph")
-| where AccountDisplayName in ("<user1@domain.com>", "<user2@domain.com>")
+| where AccountDisplayName in (users)
 | project Timestamp, AccountDisplayName, Application, ActionType, IPAddress, ObjectName, RawEventData
 | order by Timestamp desc

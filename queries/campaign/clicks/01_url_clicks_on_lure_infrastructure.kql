@@ -1,4 +1,6 @@
-// Prefer Safe Links click telemetry when available; otherwise fall back to browser-initiated endpoint network events.
+// Primary telemetry: Defender for Office 365 Safe Links (`UrlClickEvents`) with Defender for Endpoint browser fallback (`DeviceNetworkEvents`).
+// Behavior: Hunts user clicks or browser-driven visits to reported lure infrastructure and redirectors.
+// Missing telemetry: Returns empty results instead of a semantic error.
 let lureDomains = dynamic([
     "workers.dev", "vercel.app", "amplifyapp.com", "customervoice.microsoft.com",
     "secure-web.cisco.com", "mimecastprotect.com", "trendmicro.com"

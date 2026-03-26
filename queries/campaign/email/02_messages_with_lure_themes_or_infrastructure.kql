@@ -1,5 +1,6 @@
-// Prefer Defender for Office 365 email telemetry when available.
-// This query returns theme/sender hits and messages carrying URLs on reported lure infrastructure.
+// Primary telemetry: Defender for Office 365 mail telemetry (`EmailEvents`, `EmailUrlInfo`).
+// Behavior: Finds delivered messages matching lure themes/senders or carrying URLs on reported lure infrastructure.
+// Missing telemetry: Returns empty results instead of a semantic error.
 let lureDomains = dynamic([
     "workers.dev", "vercel.app", "amplifyapp.com", "customervoice.microsoft.com",
     "secure-web.cisco.com", "mimecastprotect.com", "trendmicro.com"

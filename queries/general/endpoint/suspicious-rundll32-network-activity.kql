@@ -1,5 +1,6 @@
-// Rundll32 making external network connections is often worth a look.
-// Tune by excluding known management or vendor DLL launch patterns.
+// Primary telemetry: Defender for Endpoint `DeviceNetworkEvents`.
+// Behavior: Hunts external network connections initiated by `rundll32.exe`.
+// Missing telemetry: Returns empty results instead of a semantic error.
 let networkEvents = union isfuzzy=true
 (
     DeviceNetworkEvents

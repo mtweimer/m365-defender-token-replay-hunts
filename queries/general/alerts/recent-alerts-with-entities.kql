@@ -1,4 +1,6 @@
-// Quick triage helper: recent alerts joined to evidence/entities.
+// Primary telemetry: Microsoft Defender XDR alert and evidence tables (`AlertInfo`, `AlertEvidence`).
+// Behavior: Joins recent alerts with their evidence entities for rapid triage pivots.
+// Missing telemetry: Returns empty results instead of a semantic error.
 let alertInfo = union isfuzzy=true
 (
     AlertInfo

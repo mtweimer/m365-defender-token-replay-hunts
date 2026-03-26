@@ -1,4 +1,6 @@
-// Correlate suspicious URLs with delivered messages when Defender for Office 365 mail telemetry is available.
+// Primary telemetry: Defender for Office 365 mail telemetry (`EmailEvents`, `EmailUrlInfo`).
+// Behavior: Correlates delivered messages with suspicious URLs seen in the campaign infrastructure set.
+// Missing telemetry: Returns empty results instead of a semantic error.
 let lureDomains = dynamic([
     "workers.dev", "vercel.app", "amplifyapp.com", "customervoice.microsoft.com",
     "secure-web.cisco.com", "mimecastprotect.com", "trendmicro.com"
