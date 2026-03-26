@@ -1,6 +1,23 @@
 // Rundll32 making external network connections is often worth a look.
 // Tune by excluding known management or vendor DLL launch patterns.
-DeviceNetworkEvents
+let networkEvents = union isfuzzy=true
+(
+    DeviceNetworkEvents
+    | project Timestamp, InitiatingProcessFileName, RemoteIPType, DeviceName, InitiatingProcessAccountName, InitiatingProcessCommandLine, RemoteIP, RemoteUrl
+),
+(
+    datatable(
+        Timestamp:datetime,
+        InitiatingProcessFileName:string,
+        RemoteIPType:string,
+        DeviceName:string,
+        InitiatingProcessAccountName:string,
+        InitiatingProcessCommandLine:string,
+        RemoteIP:string,
+        RemoteUrl:string
+    )[]
+);
+networkEvents
 | where Timestamp > ago(14d)
 | where InitiatingProcessFileName =~ "rundll32.exe"
 | where RemoteIPType == "Public"

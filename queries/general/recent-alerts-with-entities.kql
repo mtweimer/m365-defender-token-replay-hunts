@@ -1,6 +1,38 @@
 // Quick triage helper: recent alerts joined to evidence/entities.
-AlertInfo
+let alertInfo = union isfuzzy=true
+(
+    AlertInfo
+    | project Timestamp, AlertId, Title, Severity, Category, ServiceSource
+),
+(
+    datatable(
+        Timestamp:datetime,
+        AlertId:string,
+        Title:string,
+        Severity:string,
+        Category:string,
+        ServiceSource:string
+    )[]
+);
+let alertEvidence = union isfuzzy=true
+(
+    AlertEvidence
+    | project AlertId, EntityType, EvidenceRole, DeviceName, AccountName, RemoteIP, FileName, SHA1
+),
+(
+    datatable(
+        AlertId:string,
+        EntityType:string,
+        EvidenceRole:string,
+        DeviceName:string,
+        AccountName:string,
+        RemoteIP:string,
+        FileName:string,
+        SHA1:string
+    )[]
+);
+alertInfo
 | where Timestamp > ago(7d)
-| join kind=inner AlertEvidence on AlertId
+| join kind=inner alertEvidence on AlertId
 | project Timestamp, AlertId, Title, Severity, Category, ServiceSource, EntityType, EvidenceRole, DeviceName, AccountName, RemoteIP, FileName, SHA1
 | order by Timestamp desc

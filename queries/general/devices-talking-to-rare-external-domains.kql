@@ -1,11 +1,24 @@
 // Rare-domain outbound activity can surface staging, phishing click-through, or malware C2.
 // Exclude CDNs, security vendors, and your own known-good SaaS domains.
-let known = DeviceNetworkEvents
+let networkEvents = union isfuzzy=true
+(
+    DeviceNetworkEvents
+    | project Timestamp, RemoteIPType, RemoteUrl, DeviceId
+),
+(
+    datatable(
+        Timestamp:datetime,
+        RemoteIPType:string,
+        RemoteUrl:string,
+        DeviceId:string
+    )[]
+);
+let known = networkEvents
 | where Timestamp between (ago(30d) .. ago(7d))
 | where RemoteIPType == "Public"
 | where isnotempty(RemoteUrl)
 | summarize by RemoteUrl;
-DeviceNetworkEvents
+networkEvents
 | where Timestamp > ago(7d)
 | where RemoteIPType == "Public"
 | where isnotempty(RemoteUrl)

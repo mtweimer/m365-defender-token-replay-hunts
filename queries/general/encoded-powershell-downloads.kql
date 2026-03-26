@@ -1,6 +1,22 @@
 // Looks for PowerShell with encoded commands or common download cradles.
 // Tune by excluding admin tooling and automation hosts.
-DeviceProcessEvents
+let processEvents = union isfuzzy=true
+(
+    DeviceProcessEvents
+    | project Timestamp, DeviceName, AccountName, FileName, ProcessCommandLine, InitiatingProcessFileName, InitiatingProcessCommandLine
+),
+(
+    datatable(
+        Timestamp:datetime,
+        DeviceName:string,
+        AccountName:string,
+        FileName:string,
+        ProcessCommandLine:string,
+        InitiatingProcessFileName:string,
+        InitiatingProcessCommandLine:string
+    )[]
+);
+processEvents
 | where Timestamp > ago(14d)
 | where FileName in~ ("powershell.exe", "pwsh.exe")
 | where ProcessCommandLine has_any ("-enc", "FromBase64String", "DownloadString", "DownloadFile", "IEX(", "Invoke-Expression")

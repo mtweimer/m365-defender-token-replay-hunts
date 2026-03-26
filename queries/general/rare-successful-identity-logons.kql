@@ -1,10 +1,25 @@
 // Successful identity logons from IPs not seen for the same account in the prior 30 days.
 // Useful for spotting unusual access without requiring geolocation enrichment.
-let baseline = IdentityLogonEvents
+let logonEvents = union isfuzzy=true
+(
+    IdentityLogonEvents
+    | project Timestamp, ActionType, AccountUpn, IPAddress, Location, ISP
+),
+(
+    datatable(
+        Timestamp:datetime,
+        ActionType:string,
+        AccountUpn:string,
+        IPAddress:string,
+        Location:string,
+        ISP:string
+    )[]
+);
+let baseline = logonEvents
 | where Timestamp between (ago(37d) .. ago(7d))
 | where ActionType == "LogonSuccess"
 | summarize by AccountUpn, IPAddress;
-IdentityLogonEvents
+logonEvents
 | where Timestamp > ago(7d)
 | where ActionType == "LogonSuccess"
 | join kind=leftanti baseline on AccountUpn, IPAddress

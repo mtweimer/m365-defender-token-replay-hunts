@@ -55,8 +55,9 @@ If you're responding to a suspected token replay / device code phishing incident
 
 - These are hunting queries, not turnkey detections.
 - Table availability varies by tenant licensing and telemetry coverage.
-- Queries `01_url_clicks_on_lure_infrastructure.kql` and `08_clicked_urls_for_impacted_users.kql` prefer `UrlClickEvents` and fall back to `DeviceNetworkEvents` so they still run in tenants without Defender for Office 365 click telemetry.
-- Queries `02_messages_with_lure_themes_or_infrastructure.kql` and `03_click_delivery_correlation.kql` now degrade cleanly in tenants without Defender for Office 365 mail telemetry, but they still require that telemetry to return mail results.
+- All queries now guard against missing Advanced Hunting tables so they return empty results instead of semantic errors when a tenant lacks specific telemetry.
+- The email hunts still require Defender for Office 365 mail telemetry to return mail results, and the cloud-app hunts still require `CloudAppEvents` coverage to return SaaS activity.
+- The click hunts `01_url_clicks_on_lure_infrastructure.kql` and `08_clicked_urls_for_impacted_users.kql` prefer `UrlClickEvents` and fall back to `DeviceNetworkEvents` when Safe Links click telemetry is unavailable.
 - The original Huntress post also includes Sentinel sign-in hunts; this repo intentionally stays M365 Defender-focused.
 - Query comments call out useful tuning ideas where helpful.
 

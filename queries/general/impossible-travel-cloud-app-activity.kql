@@ -1,7 +1,23 @@
 // Starter impossible-travel style cloud activity hunt.
 // Requires location data in CloudAppEvents; adjust the time window to reduce noise.
 let window_minutes = 60;
-CloudAppEvents
+let cloudAppEvents = union isfuzzy=true
+(
+    CloudAppEvents
+    | project Timestamp, AccountObjectId, AccountDisplayName, IPAddress, CountryCode, ActionType, Application
+),
+(
+    datatable(
+        Timestamp:datetime,
+        AccountObjectId:string,
+        AccountDisplayName:string,
+        IPAddress:string,
+        CountryCode:string,
+        ActionType:string,
+        Application:string
+    )[]
+);
+cloudAppEvents
 | where Timestamp > ago(7d)
 | where isnotempty(AccountObjectId)
 | where isnotempty(CountryCode)

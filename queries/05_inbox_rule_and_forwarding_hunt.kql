@@ -1,5 +1,20 @@
-// Hunt for mailbox tampering and rule creation
-CloudAppEvents
+// Hunt for mailbox tampering and rule creation.
+let cloudAppEvents = union isfuzzy=true
+(
+    CloudAppEvents
+    | project Timestamp, AccountDisplayName, Application, ActionType, IPAddress, RawEventData
+),
+(
+    datatable(
+        Timestamp:datetime,
+        AccountDisplayName:string,
+        Application:string,
+        ActionType:string,
+        IPAddress:string,
+        RawEventData:string
+    )[]
+);
+cloudAppEvents
 | where Timestamp >= ago(30d)
 | where ActionType has_any ("New-InboxRule", "Set-InboxRule", "Disable-InboxRule", "UpdateInboxRules")
    or RawEventData has_any ("New-InboxRule", "Set-InboxRule", "forward", "redirect")

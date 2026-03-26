@@ -1,5 +1,21 @@
-// Replace placeholders with impacted users
-CloudAppEvents
+// Replace placeholders with impacted users.
+let cloudAppEvents = union isfuzzy=true
+(
+    CloudAppEvents
+    | project Timestamp, AccountDisplayName, Application, ActionType, IPAddress, ObjectName, RawEventData
+),
+(
+    datatable(
+        Timestamp:datetime,
+        AccountDisplayName:string,
+        Application:string,
+        ActionType:string,
+        IPAddress:string,
+        ObjectName:string,
+        RawEventData:string
+    )[]
+);
+cloudAppEvents
 | where Timestamp >= ago(30d)
 | where Application has_any ("Microsoft Teams", "SharePoint", "OneDrive", "Exchange Online", "Microsoft Graph")
 | where AccountDisplayName in ("<user1@domain.com>", "<user2@domain.com>")
