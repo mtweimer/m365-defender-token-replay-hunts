@@ -1,8 +1,45 @@
-// Hunt for delivered mail with relevant lure themes or infrastructure
-EmailEvents
-| where Timestamp >= ago(30d)
-| where Subject has_any ("DocuSign", "DocSend", "voicemail", "proposal", "bid", "RFP", "secure document", "SharePoint")
-   or SenderFromAddress has_any ("docusign", "sharepoint", "voicemail")
-| project Timestamp, NetworkMessageId, Subject, SenderFromAddress, RecipientEmailAddress,
-          ThreatTypes, DetectionMethods, DeliveryAction, LatestDeliveryAction
+// Prefer Defender for Office 365 email telemetry when available.
+// This query returns theme/sender hits and messages carrying URLs on reported lure infrastructure.
+let lureDomains = dynamic([
+    "workers.dev", "vercel.app", "amplifyapp.com", "customervoice.microsoft.com",
+    "secure-web.cisco.com", "mimecastprotect.com", "trendmicro.com"
+]);
+union isfuzzy=true
+(
+    EmailEvents
+    | where Timestamp >= ago(30d)
+    | where Subject has_any ("DocuSign", "DocSend", "voicemail", "proposal", "bid", "RFP", "secure document", "SharePoint")
+       or SenderFromAddress has_any ("docusign", "sharepoint", "voicemail")
+    | project Timestamp, NetworkMessageId, Subject, SenderFromAddress, RecipientEmailAddress,
+              ThreatTypes, DetectionMethods, DeliveryAction, LatestDeliveryAction,
+              MatchReason = "ThemeOrSender"
+),
+(
+    EmailEvents
+    | where Timestamp >= ago(30d)
+    | join kind=inner (
+        EmailUrlInfo
+        | where Timestamp >= ago(30d)
+        | where Url has_any (lureDomains)
+        | summarize MatchedUrls = make_set(Url, 10), MatchedDomains = make_set(UrlDomain, 10)
+            by NetworkMessageId, RecipientEmailAddress
+    ) on NetworkMessageId, RecipientEmailAddress
+    | project Timestamp, NetworkMessageId, Subject, SenderFromAddress, RecipientEmailAddress,
+              ThreatTypes, DetectionMethods, DeliveryAction, LatestDeliveryAction,
+              MatchReason = strcat("InfrastructureUrl: ", tostring(MatchedDomains))
+),
+(
+    datatable(
+        Timestamp:datetime,
+        NetworkMessageId:string,
+        Subject:string,
+        SenderFromAddress:string,
+        RecipientEmailAddress:string,
+        ThreatTypes:string,
+        DetectionMethods:string,
+        DeliveryAction:string,
+        LatestDeliveryAction:string,
+        MatchReason:string
+    )[]
+)
 | order by Timestamp desc

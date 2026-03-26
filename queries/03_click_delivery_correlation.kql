@@ -1,12 +1,43 @@
-// Correlate suspicious URLs with delivered messages
-let suspiciousMail = EmailUrlInfo
-| where Url has_any (
+// Correlate suspicious URLs with delivered messages when Defender for Office 365 mail telemetry is available.
+let lureDomains = dynamic([
     "workers.dev", "vercel.app", "amplifyapp.com", "customervoice.microsoft.com",
     "secure-web.cisco.com", "mimecastprotect.com", "trendmicro.com"
+]);
+let suspiciousMail = union isfuzzy=true
+(
+    EmailUrlInfo
+    | where Timestamp >= ago(30d)
+    | where Url has_any (lureDomains)
+    | project NetworkMessageId, Url, UrlDomain, RecipientEmailAddress
+),
+(
+    datatable(
+        NetworkMessageId:string,
+        Url:string,
+        UrlDomain:string,
+        RecipientEmailAddress:string
+    )[]
+);
+union isfuzzy=true
+(
+    EmailEvents
+    | where Timestamp >= ago(30d)
+    | join kind=inner suspiciousMail on NetworkMessageId
+    | project Timestamp, RecipientEmailAddress, SenderFromAddress, Subject, Url, UrlDomain,
+              DeliveryAction, LatestDeliveryAction, ThreatTypes, DetectionMethods
+),
+(
+    datatable(
+        Timestamp:datetime,
+        RecipientEmailAddress:string,
+        SenderFromAddress:string,
+        Subject:string,
+        Url:string,
+        UrlDomain:string,
+        DeliveryAction:string,
+        LatestDeliveryAction:string,
+        ThreatTypes:string,
+        DetectionMethods:string
+    )[]
 )
-| project NetworkMessageId, Url, UrlDomain, RecipientEmailAddress;
-EmailEvents
-| join kind=inner suspiciousMail on NetworkMessageId
-| project Timestamp, RecipientEmailAddress, SenderFromAddress, Subject, Url, UrlDomain,
-          DeliveryAction, LatestDeliveryAction, ThreatTypes, DetectionMethods
 | order by Timestamp desc
