@@ -23,7 +23,7 @@ Focused Microsoft Defender XDR Advanced Hunting queries tied to the reported lur
   - `07_teams_sharepoint_onedrive_follow_on_access.kql`
 
 ### General follow-on hunts
-Broader scoping queries you can use after the initial token-replay checks:
+Broader scoping queries you can use after the initial token-replay checks. These are not specific to the Huntress campaign; they are meant to help you widen scope into adjacent endpoint, identity, cloud, and alert activity after the campaign-focused pivots.
 
 - `queries/general/endpoint/`
   - `devices-talking-to-rare-external-domains.kql`
@@ -36,6 +36,13 @@ Broader scoping queries you can use after the initial token-replay checks:
 - `queries/general/alerts/`
   - `recent-alerts-with-entities.kql`
 
+Folder guides:
+
+- `queries/campaign/README.md`
+  - explains how the Huntress-specific campaign hunts are organized
+- `queries/general/README.md`
+  - explains what the broader follow-on hunts are for and when to use each telemetry family
+
 ## How to use
 
 1. Open **Microsoft Defender XDR** → **Advanced hunting**.
@@ -43,6 +50,8 @@ Broader scoping queries you can use after the initial token-replay checks:
 3. Replace placeholders like `<user1@domain.com>` with impacted users.
 4. Use the `queries/general/` folders to scope related activity across endpoint, cloud, identity, and alert telemetry.
 5. Tune time windows, allowlists, and thresholds for your environment before operationalizing anything.
+
+If your editor still shows flat `queries/01...08` files, refresh the file tree. The repo now stores those hunts only under `queries/campaign/`.
 
 ## Choose by telemetry or license
 
