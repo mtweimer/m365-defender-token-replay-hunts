@@ -1,10 +1,38 @@
-// Replace placeholders with impacted users
+// Replace placeholders with impacted users.
+// Prefer Safe Links click telemetry when available; otherwise fall back to browser-initiated endpoint network events.
 let users = dynamic(["<user1@domain.com>", "<user2@domain.com>"]);
-UrlClickEvents
-| where AccountUpn in (users)
-| where Url has_any (
+let lureDomains = dynamic([
     "workers.dev", "vercel.app", "amplifyapp.com", "customervoice.microsoft.com",
     "secure-web.cisco.com", "mimecastprotect.com", "trendmicro.com"
+]);
+union isfuzzy=true
+(
+    UrlClickEvents
+    | where AccountUpn in (users)
+    | where Url has_any (lureDomains)
+    | project Timestamp, AccountUpn, ActionType, Url, UrlChain, Workload, NetworkMessageId,
+              EvidenceSource = "UrlClickEvents"
+),
+(
+    DeviceNetworkEvents
+    | extend AccountUpn = coalesce(InitiatingProcessAccountUpn, strcat(InitiatingProcessAccountDomain, "\\", InitiatingProcessAccountName))
+    | where AccountUpn in (users)
+    | where isnotempty(RemoteUrl)
+    | where RemoteUrl has_any (lureDomains)
+    | where InitiatingProcessFileName in~ ("chrome.exe", "msedge.exe", "firefox.exe", "iexplore.exe", "safari.exe", "brave.exe", "opera.exe")
+    | project Timestamp, AccountUpn, ActionType, Url = RemoteUrl, UrlChain = "", Workload = "EndpointBrowser", NetworkMessageId = "",
+              EvidenceSource = "DeviceNetworkEvents"
+),
+(
+    datatable(
+        Timestamp:datetime,
+        AccountUpn:string,
+        ActionType:string,
+        Url:string,
+        UrlChain:string,
+        Workload:string,
+        NetworkMessageId:string,
+        EvidenceSource:string
+    )[]
 )
-| project Timestamp, AccountUpn, ActionType, Url, UrlChain, Workload, NetworkMessageId
 | order by Timestamp desc

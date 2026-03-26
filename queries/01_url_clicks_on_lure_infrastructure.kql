@@ -1,9 +1,36 @@
-// Hunt for user clicks to lure infrastructure and redirectors called out in reporting
-UrlClickEvents
-| where Timestamp >= ago(30d)
-| where Url has_any (
+// Prefer Safe Links click telemetry when available; otherwise fall back to browser-initiated endpoint network events.
+let lureDomains = dynamic([
     "workers.dev", "vercel.app", "amplifyapp.com", "customervoice.microsoft.com",
     "secure-web.cisco.com", "mimecastprotect.com", "trendmicro.com"
+]);
+union isfuzzy=true
+(
+    UrlClickEvents
+    | where Timestamp >= ago(30d)
+    | where Url has_any (lureDomains)
+    | project Timestamp, AccountUpn, ActionType, Url, UrlChain, Workload, NetworkMessageId,
+              EvidenceSource = "UrlClickEvents"
+),
+(
+    DeviceNetworkEvents
+    | where Timestamp >= ago(30d)
+    | where isnotempty(RemoteUrl)
+    | where RemoteUrl has_any (lureDomains)
+    | where InitiatingProcessFileName in~ ("chrome.exe", "msedge.exe", "firefox.exe", "iexplore.exe", "safari.exe", "brave.exe", "opera.exe")
+    | extend AccountUpn = coalesce(InitiatingProcessAccountUpn, strcat(InitiatingProcessAccountDomain, "\\", InitiatingProcessAccountName))
+    | project Timestamp, AccountUpn, ActionType, Url = RemoteUrl, UrlChain = "", Workload = "EndpointBrowser", NetworkMessageId = "",
+              EvidenceSource = "DeviceNetworkEvents"
+),
+(
+    datatable(
+        Timestamp:datetime,
+        AccountUpn:string,
+        ActionType:string,
+        Url:string,
+        UrlChain:string,
+        Workload:string,
+        NetworkMessageId:string,
+        EvidenceSource:string
+    )[]
 )
-| project Timestamp, AccountUpn, ActionType, Url, UrlChain, Workload, NetworkMessageId
 | order by Timestamp desc
